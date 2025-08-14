@@ -1,14 +1,9 @@
-/*************************************************
- * НАСТРОЙКИ JSON-SERVER
- *************************************************/
+
 const BASE_URL = "http://localhost:3000";
-// ВАЖНО: поменяй, если в db.json коллекция называется иначе
-// Примеры: "products", "items", "goods"
+
 const PRODUCTS_ENDPOINT = "products";
 
-/*************************************************
- * УТИЛИТЫ СЕССИИ/КОРЗИНЫ (корзина на аккаунт)
- *************************************************/
+
 function getCurrentUser() {
   try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
 }
@@ -26,7 +21,7 @@ function getCart() {
 function setCart(cart) {
   localStorage.setItem(getCartKey(), JSON.stringify(cart));
 }
-// Слияние гостевой корзины при входе (если ты вызовешь это после логина)
+
 function mergeGuestCartIntoUser() {
   const u = getCurrentUser(); if (!u) return;
   const guest = JSON.parse(localStorage.getItem("cart_guest") || "[]");
@@ -42,9 +37,6 @@ function mergeGuestCartIntoUser() {
   localStorage.removeItem("cart_guest");
 }
 
-/*************************************************
- * НАВБАР: состояние входа
- *************************************************/
 function applyUserSession() {
   const ab = document.getElementById("auth-buttons");
   const u = getCurrentUser();
@@ -63,9 +55,7 @@ function logout() {
   alert("Вы вышли из аккаунта.");
 }
 
-/*************************************************
- * ТАЙМЕР рядом с поиском
- *************************************************/
+
 function updateClock() {
   const el = document.getElementById("clock");
   if (!el) return;
@@ -76,16 +66,10 @@ function updateClock() {
 }
 setInterval(updateClock, 1000); updateClock();
 
-/*************************************************
- * ЗАГРУЗКА ТОВАРОВ ИЗ json-server
- *************************************************/
-// Хранилище загруженных товаров
+
 let products = [];
 
-/**
- * Нормализация полей товара под {id, name, price, image}
- * чтобы не зависеть от разных схем в db.json
- */
+
 function normalizeProduct(raw) {
   const id = raw.id ?? raw._id ?? raw.productId ?? raw.sku ?? String(Math.random());
   const name = raw.name ?? raw.title ?? raw.productName ?? "Без названия";
@@ -99,18 +83,14 @@ async function fetchProducts() {
     const res = await fetch(`${BASE_URL}/${PRODUCTS_ENDPOINT}`);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    // data должен быть массивом объектов из db.json
     products = Array.isArray(data) ? data.map(normalizeProduct) : [];
   } catch (e) {
     console.error("Ошибка загрузки товаров:", e);
-    products = []; // чтобы код ниже не падал
+    products = [];
     alert("Не удалось загрузить товары. Проверь json-server и PRODUCTS_ENDPOINT.");
   }
 }
 
-/*************************************************
- * ПОИСК + ПАГИНАЦИЯ (по загруженному массиву)
- *************************************************/
 const PAGE_SIZE = 12;
 let currentPage = 1;
 let currentQuery = "";
@@ -161,14 +141,10 @@ function onLoadMore() {
   renderProductsPage(false);
 }
 
-/*************************************************
- * ДОБАВЛЕНИЕ В КОРЗИНУ (товары видны всем, но добавлять могут только залогиненные)
- *************************************************/
 function handleAddToCartClick(e) {
   const btn = e.target.closest("button[data-id]");
   if (!btn) return;
 
-  // блокируем гостей
   const user = getCurrentUser();
   if (!user) {
     alert("Чтобы добавлять товары в корзину, войдите в аккаунт.");
@@ -191,14 +167,12 @@ function handleAddToCartClick(e) {
   alert("Товар добавлен в корзину");
 }
 
-/*************************************************
- * ИНИЦИАЛИЗАЦИЯ
- *************************************************/
+
 document.addEventListener("DOMContentLoaded", async () => {
   applyUserSession();
   updateClock();
 
-  // Обработчики поиска/пагинации/кнопок
+
   const search = document.getElementById("search");
   if (search) search.addEventListener("input", onSearchInput);
   const loadMoreBtn = document.getElementById("load-more");
@@ -206,11 +180,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const listEl = document.getElementById("productList");
   if (listEl) listEl.addEventListener("click", handleAddToCartClick);
 
-  // 1) грузим товары из db.json (json-server)
   await fetchProducts();
-  // 2) показываем их всем (без авторизации)
+
   renderProductsPage(true);
 
-  // Если ты вызываешь mergeGuestCartIntoUser() после логина — оставь:
-  // mergeGuestCartIntoUser();
+
 });

@@ -1,4 +1,4 @@
-// Те же утилиты
+
 function getCurrentUser() {
   try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
 }
@@ -27,7 +27,6 @@ function logout() {
   alert('Вы вышли из аккаунта.');
 }
 
-// Рендер корзины
 function renderCart() {
   const list = document.getElementById('cartList');
   const notice = document.getElementById('cartNotice');
@@ -94,7 +93,7 @@ function closePaymentModal() {
 }
 function processPayment() {
   alert('Оплата прошла успешно (демо).');
-  setCart([]); // очистить корзину
+  setCart([]); 
   closePaymentModal();
   renderCart();
 }

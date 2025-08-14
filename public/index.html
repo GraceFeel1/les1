@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Онлайн-магазин</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Онлайн-магазин</h1>
+    <nav class="top-nav">
+      <a href="cart.html" class="cart-link">🛒 Корзина</a>
+      <div class="auth-buttons" id="auth-buttons">
+        <button onclick="showRegister()">Регистрация</button>
+        <button onclick="showLogin()">Логин</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="top-bar">
+      <h2>Список товаров</h2>
+      <input type="text" id="search" placeholder="Поиск товара..." />
+    </div>
+
+    <ul id="productList" class="product-list"></ul>
+
+    <button id="load-more">Показать еще</button>
+  </main>
+
+  <!-- Модалка регистрации/логина -->
+  <div class="modal hidden" id="modal-form">
+    <div class="modal-content">
+      <h2 id="modal-title">Регистрация</h2>
+      <input type="text" id="username" placeholder="Имя пользователя" />
+      <input type="email" id="email" placeholder="Email" />
+      <input type="tel" id="phone" placeholder="Телефон" />
+      <input type="password" id="password" placeholder="Пароль" />
+      <button id="submit-btn">Отправить</button>
+      <button class="secondary" onclick="closeModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

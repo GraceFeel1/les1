@@ -1,0 +1,138 @@
+{
+  "users": [
+    {
+      "id": "9063",
+      "username": "Shveyzar",
+      "password": "123"
+    },
+    {
+      "id": "d999",
+      "username": "nnimb262491",
+      "password": "123",
+      "email": "gracefeal@gmail.com",
+      "phone": "+38 099 709 49 61"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Ноутбук Lenovo",
+      "price": 28000,
+      "image": "photo/1.jpg"
+    },
+    {
+      "id": "2",
+      "name": "Смартфон Samsung",
+      "price": 19500,
+      "image": "photo/2.jpg"
+    },
+    {
+      "id": "3",
+      "name": "Холодильник LG",
+      "price": 25000,
+      "image": "photo/3.jpg"
+    },
+    {
+      "id": "4",
+      "name": "Телевизор Sony",
+      "price": 30000,
+      "image": "photo/4.jpg"
+    },
+    {
+      "id": "5",
+      "name": "Пылесос Bosch",
+      "price": 6500,
+      "image": "photo/5.jpg"
+    },
+    {
+      "id": "6",
+      "name": "Микроволновка Panasonic",
+      "price": 4500,
+      "image": "photo/6.jpg"
+    },
+    {
+      "id": "7",
+      "name": "Игровая консоль Xbox",
+      "price": 27000,
+      "image": "photo/7.jpg"
+    },
+    {
+      "id": "8",
+      "name": "Планшет Apple iPad",
+      "price": 32000,
+      "image": "photo/8.jpg"
+    },
+    {
+      "id": "9",
+      "name": "Умные часы Huawei",
+      "price": 7400,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "10",
+      "name": "Кофемашина Philips",
+      "price": 12000,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "11",
+      "name": "Монитор Dell",
+      "price": 8800,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "12",
+      "name": "Фен Dyson",
+      "price": 9500,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "13",
+      "name": "Принтер HP",
+      "price": 5500,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "14",
+      "name": "Клавиатура Logitech",
+      "price": 2100,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "15",
+      "name": "Мышка Razer",
+      "price": 3100,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "16",
+      "name": "Колонка JBL",
+      "price": 4200,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "17",
+      "name": "Роутер TP-Link",
+      "price": 2300,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "18",
+      "name": "SSD Kingston 500GB",
+      "price": 3900,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "19",
+      "name": "Внешний HDD 1TB",
+      "price": 4500,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "20",
+      "name": "Наушники Sony",
+      "price": 6700,
+      "image": "https://via.placeholder.com/150"
+    }
+  ]
+}

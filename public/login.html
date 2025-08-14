@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вход</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Вход</h1>
+      <nav class="top-nav">
+        <a href="index.html" class="btn">На главную</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <form id="login-form" class="auth-form" onsubmit="return false;">
+      <h2>Войдите в аккаунт</h2>
+      <input id="login-username" placeholder="Имя пользователя" required />
+      <input id="login-password" type="password" placeholder="Пароль" required />
+      <button class="btn" id="login-submit">Войти</button>
+      <p>Нет аккаунта? <a href="register.html">Регистрация</a></p>
+    </form>
+  </main>
+
+  <script>
+  function setCurrentUser(u){ localStorage.setItem('user', JSON.stringify(u)); }
+  async function doLogin(username, password) {
+    try {
+      const res = await fetch('http://localhost:3000/users?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password));
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const u = { username: data[0].username, id: data[0].id };
+        setCurrentUser(u);
+        alert('Добро пожаловать, ' + u.username + '!');
+        window.location.href = 'index.html';
+      } else { alert('Неверные данные.'); }
+    } catch (e) {
+      console.error(e); alert('Ошибка входа.');
+    }
+  }
+  document.getElementById('login-submit').addEventListener('click', () => {
+    const u = document.getElementById('login-username').value.trim();
+    const p = document.getElementById('login-password').value.trim();
+    if (!u || !p) return;
+    doLogin(u, p);
+  });
+  </script>
+</body>
+</html>

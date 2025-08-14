@@ -2,39 +2,43 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Корзина</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>Корзина</h1>
-    <nav class="top-nav">
-      <a href="index.html">← Назад в магазин</a>
-    </nav>
+    <div class="header-inner">
+      <h1>Корзина</h1>
+      <nav class="top-nav">
+        <div id="auth-buttons" class="auth-buttons">
+          <a href="login.html" class="btn">Войти</a>
+          <a href="register.html" class="btn">Регистрация</a>
+        </div>
+        <a href="cart.html" class="cart-link">🛒 Корзина</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="cart-page">
-    <div class="cart-controls">
-      <label><input type="checkbox" id="select-all" /> Выбрать всё</label>
-      <div class="total-box">Сумма: <span id="total">0₴</span></div>
-    </div>
-
+  <main>
+    <div id="cartNotice" class="notice" style="display:none"></div>
     <ul id="cartList" class="cart-list"></ul>
-
-    <button id="checkout-btn" class="primary">Купить</button>
+    <div class="total" id="total">Итого: 0 грн</div>
+    <div class="cart-actions">
+      <button id="checkout-btn" class="btn" style="background:#2563eb">Купить</button>
+      <a href="index.html" class="btn">Вернуться к покупкам</a>
+    </div>
   </main>
 
   <!-- Модалка оплаты -->
-  <div id="payment-modal" class="modal hidden">
+  <div id="payment-modal" class="modal">
     <div class="modal-content">
-      <h2>Оплата</h2>
-      <input type="text" id="card-number" placeholder="Номер карты (16 цифр)" maxlength="19">
-      <input type="text" id="card-name" placeholder="Имя и фамилия (латиницей)">
-      <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
-      <input type="password" id="card-cvv" placeholder="CVV" maxlength="4">
-      <button id="pay-now" class="primary">Оплатить</button>
-      <button id="cancel-pay" class="secondary">Отмена</button>
+      <h3>Оплата</h3>
+      <input id="card-number" placeholder="Номер карты" />
+      <input id="card-date" placeholder="MM/YY" />
+      <input id="card-cvc" placeholder="CVC" />
+      <button class="btn" onclick="processPayment()">Оплатить</button>
+      <button class="btn" onclick="closePaymentModal()">Закрыть</button>
     </div>
   </div>
 

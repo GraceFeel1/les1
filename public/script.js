@@ -1,164 +1,216 @@
-const API = 'http://localhost:3000';
-let page = 1;
-const limit = 6;
-let products = []; // будет накапливать товары с пагинацией
-let searchTerm = '';
+/*************************************************
+ * НАСТРОЙКИ JSON-SERVER
+ *************************************************/
+const BASE_URL = "http://localhost:3000";
+// ВАЖНО: поменяй, если в db.json коллекция называется иначе
+// Примеры: "products", "items", "goods"
+const PRODUCTS_ENDPOINT = "products";
 
-// Загрузка товаров (с пагинацией)
-async function fetchProducts() {
-  const res = await fetch(`${API}/products?_page=${page}&_limit=${limit}`);
-  const data = await res.json();
-  products = products.concat(data);
-  renderProducts();
-  // Скрыть кнопку, если больше нечего грузить
-  if (data.length < limit) {
-    document.getElementById('load-more').style.display = 'none';
-  }
+/*************************************************
+ * УТИЛИТЫ СЕССИИ/КОРЗИНЫ (корзина на аккаунт)
+ *************************************************/
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
 }
-
-// Отрисовка карточек
-function renderProducts() {
-  const list = document.getElementById('productList');
-  list.innerHTML = '';
-  const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm));
-
-  filtered.forEach(p => {
-    const li = document.createElement('li');
-    li.className = 'product-card';
-    li.innerHTML = `
-      <img src="${p.image}" alt="${p.name}" />
-      <h3>${p.name}</h3>
-      <p class="price">${p.price.toLocaleString('uk-UA')}₴</p>
-      <button class="select-btn" data-id="${p.id}">Выбрать</button>
-    `;
-    list.appendChild(li);
+function setCurrentUser(u) {
+  if (!u) localStorage.removeItem("user");
+  else localStorage.setItem("user", JSON.stringify(u));
+}
+function getCartKey() {
+  const u = getCurrentUser();
+  return u ? `cart_${u.username}` : "cart_guest";
+}
+function getCart() {
+  return JSON.parse(localStorage.getItem(getCartKey())) || [];
+}
+function setCart(cart) {
+  localStorage.setItem(getCartKey(), JSON.stringify(cart));
+}
+// Слияние гостевой корзины при входе (если ты вызовешь это после логина)
+function mergeGuestCartIntoUser() {
+  const u = getCurrentUser(); if (!u) return;
+  const guest = JSON.parse(localStorage.getItem("cart_guest") || "[]");
+  if (!guest.length) return;
+  const userKey = getCartKey();
+  const userCart = JSON.parse(localStorage.getItem(userKey) || "[]");
+  guest.forEach(g => {
+    const idx = userCart.findIndex(i => String(i.id) === String(g.id));
+    if (idx > -1) userCart[idx].quantity += g.quantity;
+    else userCart.push(g);
   });
-
-  // навесим обработчики добавления в корзину
-  document.querySelectorAll('.select-btn').forEach(btn => {
-    btn.addEventListener('click', () => addToCart(btn.dataset.id));
-  });
+  localStorage.setItem(userKey, JSON.stringify(userCart));
+  localStorage.removeItem("cart_guest");
 }
 
-// Показать ещё
-document.getElementById('load-more').addEventListener('click', () => {
-  page++;
-  fetchProducts();
-});
-
-// Поиск
-document.getElementById('search').addEventListener('input', (e) => {
-  searchTerm = e.target.value.toLowerCase();
-  renderProducts(); // не скрывает товары, просто фильтрует текущие
-});
-
-// Работа с модалкой регистрации/логина
-function showRegister() {
-  document.getElementById('modal-title').innerText = 'Регистрация';
-  document.getElementById('email').style.display = '';
-  document.getElementById('phone').style.display = '';
-  document.getElementById('submit-btn').onclick = registerUser;
-  document.getElementById('modal-form').classList.remove('hidden');
-}
-
-function showLogin() {
-  document.getElementById('modal-title').innerText = 'Логин';
-  document.getElementById('email').style.display = 'none';
-  document.getElementById('phone').style.display = 'none';
-  document.getElementById('submit-btn').onclick = loginUser;
-  document.getElementById('modal-form').classList.remove('hidden');
-}
-
-function closeModal() {
-  document.getElementById('modal-form').classList.add('hidden');
-}
-
-async function registerUser() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-
-  if (!username || !password || !email || !phone) {
-    alert('Заполните все поля!');
-    return;
-  }
-
-  const check = await fetch(`${API}/users?username=${encodeURIComponent(username)}`);
-  const users = await check.json();
-  if (users.length > 0) {
-    alert('Пользователь уже существует!');
-    return;
-  }
-
-  const res = await fetch(`${API}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, email, phone })
-  });
-  if (res.ok) {
-    alert('Регистрация успешна!');
-    showLogin();
-  } else {
-    alert('Ошибка регистрации');
-  }
-}
-
-async function loginUser() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-
-  const res = await fetch(`${API}/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
-  const data = await res.json();
-
-  if (Array.isArray(data) && data.length > 0) {
-    localStorage.setItem('user', JSON.stringify(data[0]));
-    alert(`Добро пожаловать, ${username}!`);
-    closeModal();
-    applyUserSession();
-  } else {
-    alert('Неверные данные!');
-  }
-}
-
+/*************************************************
+ * НАВБАР: состояние входа
+ *************************************************/
 function applyUserSession() {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const authButtons = document.getElementById('auth-buttons');
-  if (user) {
-    authButtons.innerHTML = `<p>👋 Привет, ${user.username}! <button onclick="logout()">Выход</button></p>`;
+  const ab = document.getElementById("auth-buttons");
+  const u = getCurrentUser();
+  if (!ab) return;
+  if (u) {
+    ab.innerHTML = `<span class="hello">Привет, ${u.username}</span>
+      <button class="btn" onclick="logout()">Выйти</button>`;
+  } else {
+    ab.innerHTML = `<a class="btn" href="login.html">Войти</a>
+      <a class="btn" href="register.html">Регистрация</a>`;
+  }
+}
+function logout() {
+  setCurrentUser(null);
+  applyUserSession();
+  alert("Вы вышли из аккаунта.");
+}
+
+/*************************************************
+ * ТАЙМЕР рядом с поиском
+ *************************************************/
+function updateClock() {
+  const el = document.getElementById("clock");
+  if (!el) return;
+  const now = new Date();
+  const time = now.toLocaleTimeString("uk-UA", { hour12: false });
+  const date = now.toLocaleDateString("uk-UA");
+  el.textContent = `${time} ${date}`;
+}
+setInterval(updateClock, 1000); updateClock();
+
+/*************************************************
+ * ЗАГРУЗКА ТОВАРОВ ИЗ json-server
+ *************************************************/
+// Хранилище загруженных товаров
+let products = [];
+
+/**
+ * Нормализация полей товара под {id, name, price, image}
+ * чтобы не зависеть от разных схем в db.json
+ */
+function normalizeProduct(raw) {
+  const id = raw.id ?? raw._id ?? raw.productId ?? raw.sku ?? String(Math.random());
+  const name = raw.name ?? raw.title ?? raw.productName ?? "Без названия";
+  const price = Number(raw.price ?? raw.cost ?? raw.amount ?? 0);
+  const image = raw.image ?? raw.img ?? raw.thumbnail ?? raw.photo ?? "";
+  return { id, name, price, image };
+}
+
+async function fetchProducts() {
+  try {
+    const res = await fetch(`${BASE_URL}/${PRODUCTS_ENDPOINT}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    // data должен быть массивом объектов из db.json
+    products = Array.isArray(data) ? data.map(normalizeProduct) : [];
+  } catch (e) {
+    console.error("Ошибка загрузки товаров:", e);
+    products = []; // чтобы код ниже не падал
+    alert("Не удалось загрузить товары. Проверь json-server и PRODUCTS_ENDPOINT.");
   }
 }
 
-function logout() {
-  localStorage.removeItem('user');
-  document.getElementById('auth-buttons').innerHTML = `
-    <button onclick="showRegister()">Регистрация</button>
-    <button onclick="showLogin()">Логин</button>
-  `;
+/*************************************************
+ * ПОИСК + ПАГИНАЦИЯ (по загруженному массиву)
+ *************************************************/
+const PAGE_SIZE = 12;
+let currentPage = 1;
+let currentQuery = "";
+
+function getFilteredProducts() {
+  const q = currentQuery.trim().toLowerCase();
+  if (!q) return products;
+  return products.filter(p =>
+    String(p.name || "").toLowerCase().includes(q) ||
+    String(p.price ?? "").toString().includes(q)
+  );
 }
 
-// Корзина
-function addToCart(productId) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  // Найти товар в загруженном списке
-  const product = products.find(p => String(p.id) === String(productId));
+function renderProductsPage(reset = false) {
+  const listEl = document.getElementById("productList");
+  const loadMoreBtn = document.getElementById("load-more");
+  if (!listEl) return;
+
+  const filtered = getFilteredProducts();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  if (reset) { currentPage = 1; listEl.innerHTML = ""; }
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const slice = filtered.slice(start, start + PAGE_SIZE);
+
+  slice.forEach(p => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <img src="${p.image || ""}" alt="${p.name || ""}">
+      <h3>${p.name || ""}</h3>
+      <p>${p.price != null ? p.price : ""} грн</p>
+      <button class="btn" data-id="${p.id}">Выбрать</button>
+    `;
+    listEl.appendChild(li);
+  });
+
+  if (loadMoreBtn) {
+    loadMoreBtn.style.display = (currentPage >= totalPages || filtered.length === 0) ? "none" : "block";
+  }
+}
+
+function onSearchInput(e) {
+  currentQuery = e.target.value || "";
+  renderProductsPage(true);
+}
+function onLoadMore() {
+  currentPage += 1;
+  renderProductsPage(false);
+}
+
+/*************************************************
+ * ДОБАВЛЕНИЕ В КОРЗИНУ (товары видны всем, но добавлять могут только залогиненные)
+ *************************************************/
+function handleAddToCartClick(e) {
+  const btn = e.target.closest("button[data-id]");
+  if (!btn) return;
+
+  // блокируем гостей
+  const user = getCurrentUser();
+  if (!user) {
+    alert("Чтобы добавлять товары в корзину, войдите в аккаунт.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const id = btn.getAttribute("data-id");
+  const product = products.find(p => String(p.id) === String(id));
   if (!product) return;
-  const idx = cart.findIndex(i => String(i.id) == String(productId));
+
+  const cart = getCart();
+  const idx = cart.findIndex(i => String(i.id) === String(id));
   if (idx > -1) {
     cart[idx].quantity += 1;
   } else {
     cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
   }
-  localStorage.setItem('cart', JSON.stringify(cart));
-  // Визуальное подтверждение
-  alert('Товар добавлен в корзину');
+  setCart(cart);
+  alert("Товар добавлен в корзину");
 }
 
-// При загрузке
-function checkLogin() {
-  const user = localStorage.getItem('user');
-  if (user) applyUserSession();
-}
+/*************************************************
+ * ИНИЦИАЛИЗАЦИЯ
+ *************************************************/
+document.addEventListener("DOMContentLoaded", async () => {
+  applyUserSession();
+  updateClock();
 
-checkLogin();
-fetchProducts();
+  // Обработчики поиска/пагинации/кнопок
+  const search = document.getElementById("search");
+  if (search) search.addEventListener("input", onSearchInput);
+  const loadMoreBtn = document.getElementById("load-more");
+  if (loadMoreBtn) loadMoreBtn.addEventListener("click", onLoadMore);
+  const listEl = document.getElementById("productList");
+  if (listEl) listEl.addEventListener("click", handleAddToCartClick);
+
+  // 1) грузим товары из db.json (json-server)
+  await fetchProducts();
+  // 2) показываем их всем (без авторизации)
+  renderProductsPage(true);
+
+  // Если ты вызываешь mergeGuestCartIntoUser() после логина — оставь:
+  // mergeGuestCartIntoUser();
+});

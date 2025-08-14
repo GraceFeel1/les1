@@ -11,6 +11,20 @@
       "password": "123",
       "email": "gracefeal@gmail.com",
       "phone": "+38 099 709 49 61"
+    },
+    {
+      "id": "487b",
+      "username": "123",
+      "password": "123",
+      "email": "123",
+      "phone": "123"
+    },
+    {
+      "id": "b355",
+      "username": "1234",
+      "password": "1234",
+      "email": "1234",
+      "phone": "1234"
     }
   ],
   "products": [
@@ -66,73 +80,73 @@
       "id": "9",
       "name": "Умные часы Huawei",
       "price": 7400,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/9.jpg"
     },
     {
       "id": "10",
       "name": "Кофемашина Philips",
       "price": 12000,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/10.jpg"
     },
     {
       "id": "11",
       "name": "Монитор Dell",
       "price": 8800,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/11.jpg"
     },
     {
       "id": "12",
       "name": "Фен Dyson",
       "price": 9500,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/12.jpg"
     },
     {
       "id": "13",
       "name": "Принтер HP",
       "price": 5500,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/13.jpg"
     },
     {
       "id": "14",
       "name": "Клавиатура Logitech",
       "price": 2100,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/14.jpg"
     },
     {
       "id": "15",
       "name": "Мышка Razer",
       "price": 3100,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/15.jpg"
     },
     {
       "id": "16",
       "name": "Колонка JBL",
       "price": 4200,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/16.jpg"
     },
     {
       "id": "17",
       "name": "Роутер TP-Link",
       "price": 2300,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/17.jpg"
     },
     {
       "id": "18",
       "name": "SSD Kingston 500GB",
       "price": 3900,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/18.jpg"
     },
     {
       "id": "19",
       "name": "Внешний HDD 1TB",
       "price": 4500,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/19.jpg"
     },
     {
       "id": "20",
       "name": "Наушники Sony",
       "price": 6700,
-      "image": "https://via.placeholder.com/150"
+      "image": "photo/20.jpg"
     }
   ]
 }

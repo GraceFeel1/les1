@@ -22,20 +22,6 @@ function setCart(cart) {
   localStorage.setItem(getCartKey(), JSON.stringify(cart));
 }
 
-function mergeGuestCartIntoUser() {
-  const u = getCurrentUser(); if (!u) return;
-  const guest = JSON.parse(localStorage.getItem("cart_guest") || "[]");
-  if (!guest.length) return;
-  const userKey = getCartKey();
-  const userCart = JSON.parse(localStorage.getItem(userKey) || "[]");
-  guest.forEach(g => {
-    const idx = userCart.findIndex(i => String(i.id) === String(g.id));
-    if (idx > -1) userCart[idx].quantity += g.quantity;
-    else userCart.push(g);
-  });
-  localStorage.setItem(userKey, JSON.stringify(userCart));
-  localStorage.removeItem("cart_guest");
-}
 
 function applyUserSession() {
   const ab = document.getElementById("auth-buttons");
